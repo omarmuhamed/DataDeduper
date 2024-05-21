@@ -1,0 +1,12 @@
+/venv/
+/test/
+/gunicorn-logs/
+/app/sms.py
+/app/creds.json
+/nginx/ssl_certificates/5c367fa60e7d042a.crt
+/nginx/ssl_certificates/5c367fa60e7d042a.pem
+/nginx/ssl_certificates/bundle.crt
+/nginx/ssl_certificates/gd_bundle-g2-g1.crt
+/nginx/ssl_certificates/private.key
+/deprecated/
+/.idea/
