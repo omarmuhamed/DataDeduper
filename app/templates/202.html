@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block styles %}
+<style>
+        /* Custom styles for the 403 page */
+        body {
+
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f8f9fa;
+        }
+
+        .error-container {
+            text-align: center;
+        }
+    </style>
+{% endblock %}
+{% block title %}Not Ready{% endblock %}
+{% block content %}
+<div class="error-container">
+        <h1 class="display-1">202</h1>
+        <h2>Not Ready</h2>
+        <p class="lead">Sorry, this page isn't ready yet. Try again later.</p>
+    </div>
+{% endblock %}

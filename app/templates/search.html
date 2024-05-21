@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mx-3">
+    <form method="get" class="row g-1" action="/search" name="search_form">
+        <div class="form-floating form-white col">
+            <input type="text" id="firstname" name="firstname"
+                   class="form-control form-control-lg" placeholder="Enter First Name"/>
+            <label class="form-label" for="firstname">First Name</label>
+        </div>
+        <div class="form-floating form-white col">
+            <input type="text" id="lastname" name="lastname"
+                   class="form-control form-control-lg" placeholder="Enter Last Name"/>
+            <label class="form-label" for="lastname">Last Name</label>
+        </div>
+        <div class="form-floating form-white col">
+            <input type="text" id="supplier" name="supplier"
+                   class="form-control form-control-lg" placeholder="Enter Supplier Name"/>
+            <label class="form-label" for="supplier">Supplier</label>
+        </div>
+        <div class="form-floating form-white col">
+            <input type="text" id="bsc" name="bsc"
+                   class="form-control form-control-lg" placeholder="Enter Batch Source Code"/>
+            <label class="form-label" for="bsc">Batch Source Code</label>
+        </div>
+        <div class="form-floating form-white col">
+            <input type="text" id="phone" name="phone"
+                   class="form-control form-control-lg" placeholder="Enter Phone Number"/>
+            <label class="form-label" for="phone">Phone Number</label>
+        </div>
+        <div class="form-floating form-white col">
+            <input type="text" id="city" name="city"
+                   class="form-control form-control-lg" placeholder="Enter City"/>
+            <label class="form-label" for="city">City</label>
+        </div>
+        <div class="form-floating form-white col">
+            <input type="text" id="dob" name="dob"
+                   class="form-control form-control-lg" placeholder="Enter DOB"/>
+            <label class="form-label" for="dob">Date of Birth</label>
+        </div>
+        <div class="col d-md-flex">
+                <button class="btn btn-outline-dark mx-3 py-2" type="submit">Search</button>
+            </div>
+        <div class="col d-md-flex">
+                <a role="button" class="btn btn-outline-dark mx-3 py-2" href="{{ url_for('search_deprecated.download_query', **args) }}">Export</a>
+            </div>
+    </form>
+</div>
+<div class="mx-3">
+    <table class="table table-hover mt-3">
+        <thead>
+        <tr>
+            <th scope="col">Title</th>
+            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">Address</th>
+            <th scope="col">City</th>
+            <th scope="col">Postcode</th>
+            <th scope="col">Email</th>
+            <th scope="col">Phone</th>
+            <th scope="col">DOB</th>
+            <th scope="col">Supplier</th>
+            <th scope="col">BSC</th>
+            <th scope="col">Delivery</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for d in data %}
+        <tr>
+            <td>{{ d.title }}</td>
+            <td>{{ d.firstname }}</td>
+            <td>{{ d.lastname }}</td>
+            <td>{{ d.address }}</td>
+            <td>{{ d.city }}</td>
+            <td>{{ d.postcode }}</td>
+            <td>{{ d.email }}</td>
+            <td>{{ d.phone_number }}</td>
+            <td>{{ d.dob }}</td>
+            <td>{{ d.supplier_name }}</td>
+            <td>{{ d.bsc }}</td>
+            <td>{{ d.delivery_stat }}</td>
+
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="mx-3">
+    {{ pagination.info }}
+    {{ pagination.links }}
+</div>
+{% endblock %}
+{% block scripts %}
+<script type="text/javascript">
+        function FillForm() {
+        // Specify form's name between the quotes on next line.
+        var FormName = "search_form";
+        var questionlocation = location.href.indexOf('?');
+        if(questionlocation < 0) { return; }
+        var q = location.href.substr(questionlocation + 1);
+        var list = q.split('&');
+        for(var i = 0; i < list.length; i++) {
+           var kv = list[i].split('=');
+           if(! eval('document.'+FormName+'.'+kv[0])) { continue; }
+           kv[1] = unescape(kv[1]);
+           if(kv[1].indexOf('"') > -1) {
+              var re = /"/g;
+              kv[1] = kv[1].replace(re,'\\"');
+              }
+           eval('document.'+FormName+'.'+kv[0]+'.value="'+kv[1]+'"');
+           }
+        }
+        FillForm();
+    </script>
+{% endblock%}

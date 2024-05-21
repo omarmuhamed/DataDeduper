@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+    {% block styles %}{% endblock %}
+</head>
+<body>
+{% if current_user.is_authenticated %}
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark mb-5">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{{ url_for('main.home') }}">Dashboard</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mynavbar">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('main.report') }}">Report</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('main.download_database') }}">Download Database</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('search.search_v2') }}" class="nav-link">Search V2</a>
+                </li>
+
+                {% if current_user.can_admin %}
+                <li class="nav-item">
+                    <a href="{{ url_for('admins.admins_page') }}" class="nav-link">Users</a>
+                </li>
+                {% endif %}
+
+            </ul>
+            <form id="changedbform" action="/selectdb" method="GET">
+                <select name="db" id="db" style="margin-right: 20px;" onchange="changeDB();">
+                    {% for db in current_user.dbs %}
+                    <option value="{{ db }}">DB{{ db }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+            <script>
+                function changeDB() {
+                    const formElement = document.getElementById("changedbform");
+                    formElement.submit();
+                }
+
+                const selectElement = document.getElementById("db");
+
+                const desiredValue = "{{ session['db'] if 'db' in session else '1' }}";
+                for (let i = 0; i < selectElement.options.length; i++) {
+                    if (selectElement.options[i].value === desiredValue) {
+                        selectElement.options[i].selected = true;
+                        break; // Stop looping once the desired option is found and selected
+                    }
+                }
+
+            </script>
+            <form class="d-flex" action="{{ url_for('auth.logout') }}" method="post">
+                <button class="btn btn-danger" type="submit">Logout</button>
+            </form>
+        </div>
+    </div>
+</nav>
+{% endif %}
+{% block content %}
+{% endblock %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

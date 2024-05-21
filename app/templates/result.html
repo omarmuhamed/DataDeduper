@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<h3>Filename: {{ res[0] }}</h3>
+<h4>Time: {{ res[1] }} Seconds</h4>
+<div class="mx-3">
+        <table class="table table-hover mt-3">
+            <thead>
+            <tr>
+                <th scope="col">Supplier</th>
+                <th scope="col">Duplicate Count</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for index, row in df.iterrows() %}
+                <tr>
+                    <td>{{ row['supplier'] }}</td>
+                    <td>{{ row['count_dups'] }}</td>
+
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block styles %}
+<link href="https://cdn.datatables.net/v/bs5/dt-2.0.2/b-3.0.1/date-1.5.2/sb-1.7.0/datatables.min.css" rel="stylesheet"/>
+{% endblock %}
+{% block content %}
+<input type="hidden" name="recordsfiltered" value="">
+<table id="example" class="display nowrap" style="width:100%">
+    <thead>
+    <tr>
+       {% for key, spec in column_specs.items() %}
+                {% if key != 'id' %} <!-- Assuming you want to exclude 'id' -->
+                    <th scope="col">{{ spec.label }}</th>
+                {% endif %}
+        {% endfor %}
+    </tr>
+    </thead>
+    <tfoot>
+    <tr>
+        {% for key, spec in column_specs.items() %}
+                {% if key != 'id' %} <!-- Assuming you want to exclude 'id' -->
+                    <th scope="col">{{ spec.label }}</th>
+                {% endif %}
+        {% endfor %}
+    </tr>
+    </tfoot>
+</table>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.datatables.net/v/bs5/dt-2.0.2/b-3.0.1/date-1.5.2/sb-1.7.0/datatables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        var columns = {{ columns|safe }};
+        var table = $('#example').DataTable({
+            lengthChange: true,
+            searching: false,
+            language: {
+                searchBuilder: {
+                    button: 'Filter'
+                }
+            },
+            buttons: [
+                'searchBuilder',
+                {
+                    text: 'Export',
+                    action: function (e, dt, node, config) {
+                        var form = document.createElement('form')
+                        form.method = 'POST'
+                        form.action = '/downloadqueryv2'
+                        var input = document.createElement('input')
+                        input.type = 'hidden'
+                        input.name = 'crt'
+                        input.value = JSON.stringify(dt.searchBuilder.getDetails())
+                        form.appendChild(input)
+                        document.body.appendChild(form)
+                        form.submit()
+                        document.body.removeChild(form)
+                    }
+                },
+                {
+                    text: 'Delete',
+                    action: function (e, dt, node, config) {
+                        if (confirm($('input[name="recordsfiltered"]').val() + ' records will be deleted.')) {
+                            $.ajax({
+                                url: '/deleterecords',
+                                type: 'POST',
+                                contentType: 'application/json',
+                                dataType: 'json',
+                                data: JSON.stringify(dt.searchBuilder.getDetails()),
+                                success: function (data){
+                                    if (data.success === true){
+                                        alert('Deleted')
+                                        dt.ajax.reload()
+                                    } else {
+                                        alert('Error')
+                                    }
+                                }
+                            })
+                        }
+                    }
+                }
+            ],
+            pagingType: 'full_numbers',
+            lengthMenu: [[100, 1000, 10000], [100, 1000, 10000]],
+            serverSide: true,
+            processing: true,
+            //search: {return: true},
+            ajax: {
+                url: '/getdata',
+                contentType: "application/json",
+                type: 'POST',
+                data: function (d) {
+                    var sb = $('#example').DataTable().searchBuilder;
+                    var sbDetails = null;
+                    try {
+                        $('#example').DataTable().off('preXhr.dtsb');
+                        sbDetails = sb.getDetails();
+                    } catch (e) {
+                        console.log('SearchBuilder not yet initialised!');
+                    }
+                    d.sbCrit = sbDetails;
+                    return JSON.stringify(d);
+                }
+            },
+            columns: columns,
+            deferRender: true,
+            dom: 'B<"clear">lfrtip',
+
+        });
+        table.on('xhr', function (e, settings, json, xhr){
+            if (json){
+                if (json.recordsFiltered){
+                    $('input[name="recordsfiltered"]').val(json.recordsFiltered)
+                }
+            }
+        });
+
+    });
+</script>
+{% endblock %}

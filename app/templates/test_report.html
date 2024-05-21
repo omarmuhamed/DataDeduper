@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Dedup{% endblock %}
+{% block content %}
+    <h1 style="text-align: center">Dedupe</h1>
+    <div class="mx-3">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#mappingModal">
+  Upload and Map CSV
+</button>
+    </div>
+    <div class="mx-3">
+        <table class="table table-hover mt-3">
+            <thead>
+            <tr>
+                <th scope="col">Job ID</th>
+                <th scope="col">Filename</th>
+                <th scope="col">Date</th>
+                <th scope="col">Status</th>
+                <th scope="col">Report</th>
+                <th scope="col">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for (job, status, name, date) in jobs %}
+                <tr>
+                    <th scope="row"><a class="text-decoration-none"
+                                       href="{{ url_for('main.get_report', job_key=job) }}">{{ job }}</a>
+                    </th>
+                    <td>{{ name }}</td>
+                    <td>{{ date }}</td>
+                    <td>{{ status }}</td>
+                    <td>
+                        {% if status not in ('finished') %}
+                        <a href="#">Download</a>
+                        {% else %}
+                        <a href="{{ url_for('main.download_report', job_key=job) }}">Download</a>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex flex-row">
+                            <div>
+                                    <a role="button" type="button" class="btn btn-outline-danger" href="{{ url_for('main.cancel_job', job_key=job) }}">
+                                        <i class="bi bi-trash"> Delete </i>
+                                    </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- Mapping Modal -->
+<div class="modal fade" id="mappingModal" tabindex="-1" aria-labelledby="mappingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mappingModalLabel">Map CSV Columns to Data Structure</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+        <div class="modal-body">
+            <form id="mappingForm" method="post" action="/add" enctype="multipart/form-data">
+                    <input type="hidden" name="method" value="dedup" />
+                    <div class="mb-3">
+                        <label for="uploaded_file_modal" class="form-label">Upload CSV File</label>
+                        <input type="file" id="uploaded_file_modal" name="uploaded_file" class="form-control" accept=".csv" required onchange="populateCSVColumns()"/>
+                    </div>
+                    {% for column, specs in column_mappings.items() %}
+                    <div class="mb-3">
+                        <label class="form-label">{{ specs.label }}</label>
+                        <select multiple class="selectpicker csv-column-select" data-live-search="false" name="mapping_{{ column }}" {{ "required" if specs.required else "" }} onchange="checkSelectedColumns(this)">
+                            <!-- Options will be dynamically populated based on CSV -->
+                        </select>
+                        <input type="text" class="form-control mt-2 separator-input" name="separator_{{ column }}" placeholder="Separator (optional)" disabled>
+                    </div>
+                    {% endfor %}
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+</form>
+                </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
+<script>
+function populateCSVColumns() {
+    const fileInput = document.getElementById('uploaded_file_modal'); // Ensure the ID matches the modal's file input
+    const file = fileInput.files[0];
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const text = event.target.result;
+            const allLines = text.split(/\r\n|\n/);
+            const headers = allLines[0].split(','); // Assuming a simple CSV structure
+
+            document.querySelectorAll('#mappingModal select[class*="csv-column-select"]').forEach(select => {
+                select.innerHTML = ''; // Clear existing options
+                headers.forEach(header => { // Add new options based on CSV headers
+                    const option = document.createElement('option');
+                    option.value = header;
+                    option.text = header;
+                    select.appendChild(option);
+                });
+                $(select).selectpicker('refresh');
+            });
+        };
+        reader.readAsText(file);
+    }
+}
+function checkSelectedColumns(selectElement) {
+    // Find the next sibling separator input related to the changed select element
+    const separatorInput = selectElement.closest('.mb-3').querySelector('.separator-input');
+
+    // Enable the separator input only if more than one column is selected
+    separatorInput.disabled = selectElement.selectedOptions.length <= 1;
+}
+
+// Optional: You might want to run this check on page load for pre-filled selections
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.csv-column-select').forEach(selectElement => {
+        checkSelectedColumns(selectElement);
+    });
+});
+</script>
+{% endblock %}
+{% block styles %}
+<link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
+{% endblock %}

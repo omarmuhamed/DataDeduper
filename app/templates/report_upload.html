@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Dedup{% endblock %}
+{% block content %}
+    <h1 style="text-align: center">Dedupe</h1>
+    <div class="mx-3">
+        <form method="post" class="row g-1" action="/add" enctype="multipart/form-data">
+            <input type="hidden" name="method" value="dedup" />
+            <div class="form-white col-3">
+                <input type="file" id="uploaded_file" name="uploaded_file"
+                       class="form-control form-control-lg" accept=".csv" required/>
+            </div>
+            <div class="col d-md-flex">
+                <button class="btn btn-outline-dark mx-3 py-2" type="submit">Submit</button>
+            </div>
+        </form>
+    </div>
+    <div class="mx-3">
+        <table class="table table-hover mt-3">
+            <thead>
+            <tr>
+                <th scope="col">Job ID</th>
+                <th scope="col">Filename</th>
+                <th scope="col">Date</th>
+                <th scope="col">Status</th>
+                <th scope="col">Report</th>
+                <th scope="col">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for (job, status, name, date) in jobs %}
+                <tr>
+                    <th scope="row"><a class="text-decoration-none"
+                                       href="{{ url_for('main.get_report', job_key=job) }}">{{ job }}</a>
+                    </th>
+                    <td>{{ name }}</td>
+                    <td>{{ date }}</td>
+                    <td>{{ status }}</td>
+                    <td>
+                        {% if status not in ('finished') %}
+                        <a href="#">Download</a>
+                        {% else %}
+                        <a href="{{ url_for('main.download_report', job_key=job) }}">Download</a>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex flex-row">
+                            <div>
+                                    <a role="button" type="button" class="btn btn-outline-danger" href="{{ url_for('main.cancel_job', job_key=job) }}">
+                                        <i class="bi bi-trash"> Delete </i>
+                                    </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,105 @@
+<div class="modal fade" id="adminedit" tabindex="-1" aria-labelledby="admineditLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="admineditLabel">Edit User</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <form class="needs-validation" id="admineditform" action="" method="post" autocomplete="off" novalidate>
+                <div class="modal-body">
+                    <div class="form-floating form-white mb-4">
+                        <input type="text" id="firstnamee" name="firstname" value=""
+                               class="form-control form-control-lg" placeholder="Enter First Name" required/>
+                        <label class="form-label" for="firstnamee">First Name</label>
+                        <div class="invalid-feedback">
+                            Please enter First Name.
+                        </div>
+                    </div>
+                    <div class="form-floating form-white mb-4">
+                        <input type="text" id="lastnamee" name="lastname" value=""
+                               class="form-control form-control-lg" placeholder="Enter Last Name" required/>
+                        <label class="form-label" for="lastnamee">Last Name</label>
+                        <div class="invalid-feedback">
+                            Please enter Last Name.
+                        </div>
+                    </div>
+                    <div class="form-floating form-white mb-4">
+                        <input type="password" id="passworde" name="password" value=""
+                               class="form-control form-control-lg" placeholder="Enter Password" autocomplete="new-password" />
+                        <label class="form-label" for="passworde">Password</label>
+                    </div>
+                    <div class="form-white mb-4">
+                        <label class="form-label" for="dbse">Databases</label>
+                        <select class="selectpicker form-control form-control-lg"
+                                data-live-search="false" multiple data-actions-box="true" id="dbse" name="dbs" required>
+                            <option value="1">DB1</option>
+                            <option value="2">DB2</option>
+                            <option value="3">DB3</option>
+                            <option value="4">DB4</option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Please choose databases.
+                        </div>
+                    </div>
+                    <h3>Permissions</h3>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" value="" id="deletee" name="delete">
+                      <label class="form-check-label" for="deletee">
+                        Delete Records
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" value="" id="downloaddbe" name="downloaddb">
+                      <label class="form-check-label" for="downloaddbe">
+                        Export Database
+                      </label>
+                    </div>
+                    <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="" id="downloadquerye" name="downloadquery">
+                  <label class="form-check-label" for="downloadquerye">
+                    Download Records
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="" id="admine" name="admin">
+                  <label class="form-check-label" for="admine">
+                    Admin
+                  </label>
+                </div>
+                    <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="" id="update_sheete" name="update_sheet">
+                  <label class="form-check-label" for="update_sheete">
+                    Update Sheet
+                  </label>
+                </div>
+                    <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="" id="dedupe" name="dedup">
+                  <label class="form-check-label" for="dedupe">
+                    Dedup
+                  </label>
+                </div>
+                    <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="" id="add_filee" name="add_file">
+                  <label class="form-check-label" for="add_filee">
+                    Add File to the DB
+                  </label>
+                </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="searche" name="search">
+                        <label class="form-check-label" for="searche">
+                            Search
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Close
+                    </button>
+                    <button type="submit" class="btn btn-success" id="ConfirmAdminEdit">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

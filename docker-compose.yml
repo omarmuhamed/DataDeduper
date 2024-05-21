@@ -1,0 +1,69 @@
+version: "3.8"
+services:
+    redis:
+        image: redis/redis-stack
+        ports:
+            - "8765:6379"
+        volumes:
+            - ./redis.conf:/redis-stack.conf
+            - ./redis-data:/data
+        healthcheck:
+            test: [ "CMD", "redis-cli", "ping" ]
+            interval: 10s
+            timeout: 5s
+            retries: 10
+        container_name: "redis"
+    app:
+        image: master-image
+        build:
+            context: ./
+            dockerfile: Dockerfile
+            args:
+                options: --reload --preload
+        environment:
+            - PORT=5000
+            - HOST=127.0.0.1
+            - REDIS_HOST=redis
+            - REDIS_PORT=6379
+            - DB_SERVER=localhost
+            - DB_PORT=5432
+            - DB_USER=postgres
+            - DB_PASSWORD=SECRET
+        expose:
+            - 5000
+        volumes:
+            - ./app/uploaded_files:/uploaded_files
+            - ./app/jobs:/jobs
+            - ./gunicorn-logs:/gunicorn-logs
+            - ./:/dashboard
+        container_name: "app"
+    dedup-worker:
+        image: master-image
+        volumes:
+            - ./app/uploaded_files:/uploaded_files
+            - ./app/jobs:/jobs
+        depends_on:
+            redis:
+                condition: service_healthy
+        environment:
+             - PYTHONUNBUFFERED=1
+        command: rq worker deduper --url redis://redis:6379
+        container_name: "dedup-worker"
+    error-worker:
+        image: master-image
+        depends_on:
+            redis:
+                condition: service_healthy
+        command: rq worker error --url redis://redis:6379
+        container_name: 'error-worker'
+    nginx:
+        build: ./nginx
+        ports:
+            - "80:80"
+            - "443:443"
+        depends_on:
+            - app
+        volumes:
+            - ./nginx-logs:/nginx-logs
+        container_name: "nginx"
+

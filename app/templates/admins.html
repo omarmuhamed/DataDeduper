@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mx-3">
+        <form method="get" class="needs-validation row g-1" novalidate>
+            <div class="col d-md-flex justify-content-md-end text-right">
+                <button class="btn btn-primary me-md-2" type="button" data-bs-toggle="modal"
+                        data-bs-target="#adminadd">
+                    <i class="bi bi-person-plus"> Add User </i>
+                </button>
+            </div>
+        </form>
+    </div>
+    <div class="mx-3">
+        <table class="table table-hover mt-3">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">First Name</th>
+                <th scope="col">Last Name</th>
+                <th scope="col">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for user in users.items %}
+                <tr>
+                    <th scope="row">{{ user.id }}</th>
+                    <td>{{ user.fname }}</td>
+                    <td>{{ user.lname }}</td>
+                    <td>
+                        <div class="d-flex flex-row">
+                            <div>
+                                <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal"
+                                        data-bs-target="#adminedit" data-bs-fname="{{ user.fname }}"
+                                        data-bs-lname="{{ user.lname }}" data-bs-id="{{ user.id }}" data-bs-permissions="{{ json.dumps(user.permissions) }}">
+                                    <i class="bi bi-pencil-square"> Edit </i>
+                                </button>
+                                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                                        data-bs-target="#admindelete" data-bs-fname="{{ user.fname }}"
+                                        data-bs-lname="{{ user.lname }}" data-bs-id="{{ user.id }}">
+                                    <i class="bi bi-trash"> Delete </i>
+                                </button>
+
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+    <div class="mx-3">
+        {{ pagination.info }}
+        {{ pagination.links }}
+    </div>
+{% include "admin_edit.html" %}
+{% include "admin_delete.html" %}
+{% include "admin_add.html" %}
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
+<script>
+const editModal = document.getElementById('adminedit')
+        editModal.addEventListener('show.bs.modal', event => {
+            const button = event.relatedTarget
+            const fname = button.getAttribute('data-bs-fname')
+            const lname = button.getAttribute('data-bs-lname')
+            const id = button.getAttribute('data-bs-id')
+            const fnameinput = editModal.querySelector('#firstnamee')
+            const lnameinput = editModal.querySelector('#lastnamee')
+            fnameinput.value = fname
+            lnameinput.value = lname
+            const perms = JSON.parse(button.getAttribute('data-bs-permissions'))
+            let databases = perms.dbs
+            let string_db = databases.map(String)
+            $('#dbse').selectpicker('deselectAll')
+            $('#dbse').selectpicker('val', string_db)
+            if (perms.delete){
+                $('#deletee').prop('checked', true)
+            }
+            if (perms.admin){
+                $('#admine').prop('checked', true)
+            }
+            if (perms.download_db){
+                $('#downloaddbe').prop('checked', true)
+            }
+            if (perms.download_query){
+                $('#downloadquerye').prop('checked', true)
+            }
+            if (perms.add_file){
+                $('#add_filee').prop('checked', true)
+            }
+            if (perms.update_sheet){
+                $('#update_sheete').prop('checked', true)
+            }
+            if (perms.dedup){
+                $('#dedupe').prop('checked', true)
+            }
+            if (perms.search){
+                $('#searche').prop('checked', true)
+            }
+            $('#admineditform').attr('action', 'EditAdmin/' + id)
+        });
+const deleteModal = document.getElementById('admindelete')
+        deleteModal.addEventListener('show.bs.modal', event => {
+            const button = event.relatedTarget
+            const fname = button.getAttribute('data-bs-fname')
+            const lname = button.getAttribute('data-bs-lname')
+            const id = button.getAttribute('data-bs-id')
+            const modalBody = deleteModal.querySelector('.modal-body')
+            $("#confirmDeleteAdmin").data('id', id)
+            modalBody.textContent = `Are you sure you want to delete ${fname} ${lname} ?`
+        });
+$("#confirmDeleteAdmin").click(function (e) {
+            $.ajax({
+                type: "POST",
+                url: "DeleteAdmin",
+                data: "id=" + $("#confirmDeleteAdmin").data("id"),
+                success: function (result, status, xhr) {
+                    location.reload();
+                }
+            });
+        });
+</script>
+<script>
+    (function () {
+  'use strict'
+
+  // Fetch all the forms we want to apply custom Bootstrap validation styles to
+  var forms = document.querySelectorAll('.needs-validation')
+
+  // Loop over them and prevent submission
+  Array.prototype.slice.call(forms)
+    .forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+
+        form.classList.add('was-validated')
+      }, false)
+    })
+})()
+</script>
+{% endblock %}
+{% block styles %}
+<link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
+{% endblock %}

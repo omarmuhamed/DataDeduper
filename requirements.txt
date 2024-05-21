@@ -1,0 +1,12 @@
+flask
+psycopg2-binary
+gunicorn
+redis
+rq
+pandas
+flask_sqlalchemy
+flask_paginate
+xmltodict
+gspread==5.1.1
+flask_login
+Flask-WTF
